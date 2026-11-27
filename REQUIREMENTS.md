@@ -78,10 +78,10 @@ Each day ends on something you can demo.
 - **Demo at the end of the day:** locally in the browser: sign up → create a habit → tick it → log out → log back in, it's still ticked.
 
 ### Day 3: Streaks, guest mode and going live
-- [ ] Streak calculation (tested with fixed dates: gaps, today not ticked yet, time zones) and the calendar
-- [ ] "Try as guest": temporary account filled with demo habits and history, cleaned up after 24 h
-- [ ] Dockerfile for the API; Neon database; deploy the API on Render and the front end on Vercel
-- [ ] "Server is waking up" message, like the portfolio contact form
+- [x] Streak calculation (tested with fixed dates: gaps, today not ticked yet, time zones) and the calendar
+- [x] "Try as guest": temporary account filled with demo habits and history, cleaned up after 24 h
+- [x] Dockerfile for the API; Neon database; deploy the API on Render and the front end on Vercel
+- [x] "Server is waking up" message, like the portfolio contact form
 - **Demo at the end of the day:** the live app: click "Try as guest" and see habits, streaks and the calendar.
 
 ### Day 4: CI/CD, end-to-end test and showcase
