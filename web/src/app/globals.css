@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+/* Calm, daily-use palette: sage paper, deep green ink, one moss accent for "done". */
+:root {
+  --paper: #f2f4ef;
+  --card: #ffffff;
+  --ink: #18211c;
+  --muted: #56625b;
+  --line: #d6ddd3;
+  --moss: #2f6b47;
+  --moss-soft: #dcebdf;
+  --on-moss: #ffffff;
+  --danger: #a3261d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #111613;
+    --card: #19201c;
+    --ink: #e6ece7;
+    --muted: #9aa69e;
+    --line: #2c3530;
+    --moss: #6fbf8b;
+    --moss-soft: #1f3327;
+    --on-moss: #0d1a12;
+    --danger: #f08a80;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-moss: var(--moss);
+  --color-moss-soft: var(--moss-soft);
+  --color-on-moss: var(--on-moss);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-figtree);
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--moss);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

@@ -72,9 +72,9 @@ Each day ends on something you can demo.
 - **Demo at the end of the day:** in `/docs`, sign up, log in and call "who am I"; the tests pass on GitHub Actions.
 
 ### Day 2: Habits and the front end
-- [ ] Habits API: create, list, rename, delete, check in / undo for today, only for the logged-in user (tested)
-- [ ] Next.js app with sign-up, log-in and habit list pages, `/api/*` rewrites to the API
-- [ ] Tick a habit from the list, with instant feedback
+- [x] Habits API: create, list, rename, delete, check in / undo for today, only for the logged-in user (tested)
+- [x] Next.js app with sign-up, log-in and habit list pages, `/api/*` rewrites to the API
+- [x] Tick a habit from the list, with instant feedback
 - **Demo at the end of the day:** locally in the browser: sign up → create a habit → tick it → log out → log back in, it's still ticked.
 
 ### Day 3: Streaks, guest mode and going live
