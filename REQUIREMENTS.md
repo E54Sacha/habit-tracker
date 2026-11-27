@@ -85,25 +85,25 @@ Each day ends on something you can demo.
 - **Demo at the end of the day:** the live app: click "Try as guest" and see habits, streaks and the calendar.
 
 ### Day 4: CI/CD, end-to-end test and showcase
-- [ ] GitHub Actions: API tests with coverage, front-end lint and build, Docker build, Playwright test, then deploy to Render on `main`
-- [ ] Pre-commit hook that runs pytest; `deploy` skill with the deploy and rollback steps
-- [ ] README with `write-readme` (CI and coverage badges, architecture diagram) and a demo GIF
-- [ ] Portfolio card with `add-project-to-portfolio`
+- [x] GitHub Actions: API tests with coverage, front-end lint and build, Docker build, Playwright test, then deploy to Render on `main`
+- [x] Pre-commit hook that runs pytest; `deploy` skill with the deploy and rollback steps
+- [x] README with `write-readme` (CI and coverage badges, architecture diagram) and a demo GIF
+- [x] Portfolio card with `add-project-to-portfolio`
 - **Demo at the end of the day:** push a change → CI goes green → the live app updates on its own.
 
 ## Definition of done
 
 Every item must be testable by someone else.
 
-- [ ] A visitor can open the live app, click "Try as guest" and see habits with streaks and a calendar, without signing up
-- [ ] A visitor can sign up, create a habit, tick it, log out and log back in, and the tick is still there
-- [ ] One user can't see or change another user's habits (tested)
-- [ ] Every push runs the tests on GitHub Actions; a green push to `main` deploys automatically
-- [ ] API test coverage is at least 80%, shown as a badge in the README
-- [ ] One Playwright test (sign up → create habit → tick → log out) passes in CI
-- [ ] The database schema is created only by Alembic migrations
-- [ ] README with a demo GIF, an architecture diagram and how to run it locally (`docker compose up`)
-- [ ] Deployed: front end on Vercel, API on Render, database on Neon, with the card on the portfolio
+- [x] A visitor can open the live app, click "Try as guest" and see habits with streaks and a calendar, without signing up
+- [x] A visitor can sign up, create a habit, tick it, log out and log back in, and the tick is still there
+- [x] One user can't see or change another user's habits (tested)
+- [x] Every push runs the tests on GitHub Actions; a green push to `main` deploys automatically
+- [x] API test coverage is at least 80%, shown as a badge in the README
+- [x] One Playwright test (sign up → create habit → tick → log out) passes in CI
+- [x] The database schema is created only by Alembic migrations
+- [x] README with a demo GIF, an architecture diagram and how to run it locally (`docker compose up`)
+- [x] Deployed: front end on Vercel, API on Render, database on Neon, with the card on the portfolio
 
 ## Risks
 
