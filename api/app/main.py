@@ -4,10 +4,11 @@ from fastapi import FastAPI
 from sqlalchemy import text
 
 from .db import engine
-from .routers import auth
+from .routers import auth, habits
 
 app = FastAPI(title="Habit tracker API")
 app.include_router(auth.router)
+app.include_router(habits.router)
 
 
 @app.get("/health")
