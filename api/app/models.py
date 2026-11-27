@@ -2,7 +2,7 @@
 
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, ForeignKey, String, UniqueConstraint, func
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, String, UniqueConstraint, false, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -10,12 +10,15 @@ from .db import Base
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = (Index("ix_users_guest_created_at", "created_at", postgresql_where=text("is_guest")),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     # Stored lowercased, so "Me@x.com" and "me@x.com" are the same account.
     email: Mapped[str] = mapped_column(String(254), unique=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    # "Try as guest" accounts: no usable password, deleted 24 hours after they're created.
+    is_guest: Mapped[bool] = mapped_column(Boolean, server_default=false())
 
     habits: Mapped[list["Habit"]] = relationship(back_populates="user", cascade="all, delete-orphan", passive_deletes=True)
 

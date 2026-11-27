@@ -28,10 +28,10 @@ def verify_password(password: str, password_hash: str | None) -> bool:
         return False
 
 
-def create_token(user_id: int) -> str:
+def create_token(user_id: int, lifetime: timedelta | None = None) -> str:
     settings = get_settings()
     now = datetime.now(UTC)
-    payload = {"sub": str(user_id), "iat": now, "exp": now + timedelta(days=settings.token_days)}
+    payload = {"sub": str(user_id), "iat": now, "exp": now + (lifetime or timedelta(days=settings.token_days))}
     return jwt.encode(payload, settings.jwt_secret, algorithm=ALGORITHM)
 
 

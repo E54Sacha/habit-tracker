@@ -14,6 +14,7 @@ from sqlalchemy.dialects.postgresql import insert
 
 from ..deps import DB, CurrentUser
 from ..models import CheckIn, Habit
+from ..streaks import history, streak
 
 router = APIRouter(prefix="/habits", tags=["habits"])
 
@@ -50,6 +51,8 @@ class HabitOut(BaseModel):
     id: int
     name: str
     done_today: bool
+    streak: int
+    history: list[date]  # ticked days in the last 8 weeks, oldest first
 
 
 def _own_habit(db: DB, user: CurrentUser, habit_id: int) -> Habit:
@@ -59,18 +62,24 @@ def _own_habit(db: DB, user: CurrentUser, habit_id: int) -> Habit:
     return habit
 
 
-def _is_done(db: DB, habit_id: int, day: date) -> bool:
-    return db.scalar(select(func.count()).where(CheckIn.habit_id == habit_id, CheckIn.day == day)) > 0
+def _with_stats(db: DB, habits: list[Habit], today: date) -> list[HabitOut]:
+    """Adds today's tick, the streak and the calendar history, with one query for all habits."""
+    days: dict[int, list[date]] = {h.id: [] for h in habits}
+    if days:
+        # Days after "today" can exist (another time zone ticked "tomorrow"); they don't count yet.
+        rows = db.execute(select(CheckIn.habit_id, CheckIn.day).where(CheckIn.habit_id.in_(days), CheckIn.day <= today))
+        for habit_id, day in rows:
+            days[habit_id].append(day)
+    return [
+        HabitOut(id=h.id, name=h.name, done_today=today in days[h.id], streak=streak(days[h.id], today), history=history(days[h.id], today))
+        for h in habits
+    ]
 
 
 @router.get("")
 def list_habits(db: DB, user: CurrentUser, today: Today) -> list[HabitOut]:
-    check_today(today)
-    done = select(CheckIn.habit_id).where(CheckIn.day == today)
-    rows = db.execute(
-        select(Habit.id, Habit.name, Habit.id.in_(done)).where(Habit.user_id == user.id).order_by(Habit.created_at, Habit.id)
-    )
-    return [HabitOut(id=id_, name=name, done_today=is_done) for id_, name, is_done in rows]
+    habits = db.scalars(select(Habit).where(Habit.user_id == user.id).order_by(Habit.created_at, Habit.id)).all()
+    return _with_stats(db, list(habits), check_today(today))
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -81,15 +90,16 @@ def create_habit(body: HabitIn, db: DB, user: CurrentUser) -> HabitOut:
     habit = Habit(user_id=user.id, name=body.name)
     db.add(habit)
     db.commit()
-    return HabitOut(id=habit.id, name=habit.name, done_today=False)
+    return HabitOut(id=habit.id, name=habit.name, done_today=False, streak=0, history=[])
 
 
 @router.patch("/{habit_id}")
 def rename_habit(habit_id: int, body: HabitIn, db: DB, user: CurrentUser, today: Today) -> HabitOut:
+    check_today(today)
     habit = _own_habit(db, user, habit_id)
     habit.name = body.name
     db.commit()
-    return HabitOut(id=habit.id, name=habit.name, done_today=_is_done(db, habit.id, check_today(today)))
+    return _with_stats(db, [habit], today)[0]
 
 
 @router.delete("/{habit_id}", status_code=status.HTTP_204_NO_CONTENT)

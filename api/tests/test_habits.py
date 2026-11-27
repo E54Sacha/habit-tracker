@@ -34,7 +34,7 @@ def test_create_and_list_in_creation_order(ada):
     assert habits(ada).json() == []
     first = create(ada, "Read 10 pages")
     assert first.status_code == 201
-    assert first.json() == {"id": first.json()["id"], "name": "Read 10 pages", "done_today": False}
+    assert first.json() == {"id": first.json()["id"], "name": "Read 10 pages", "done_today": False, "streak": 0, "history": []}
     create(ada, "Drink water")
     assert [h["name"] for h in habits(ada).json()] == ["Read 10 pages", "Drink water"]
 
@@ -59,6 +59,8 @@ def test_tick_and_untick_today(ada):
     assert ada.put(url).status_code == 204
     assert ada.put(url).status_code == 204  # ticking twice is fine (idempotent)
     assert habits(ada).json()[0]["done_today"] is True
+    assert habits(ada).json()[0]["streak"] == 1
+    assert habits(ada).json()[0]["history"] == [TODAY.isoformat()]
     assert habits(ada, TODAY + timedelta(days=1)).json()[0]["done_today"] is False  # a new day starts unticked
     assert ada.delete(url).status_code == 204
     assert ada.delete(url).status_code == 204
@@ -101,7 +103,7 @@ def test_users_cannot_see_or_touch_each_others_habits(ada, bob):
     assert bob.put(f"/habits/{habit_id}/check-ins/{day}").status_code == 404
     assert bob.delete(f"/habits/{habit_id}/check-ins/{day}").status_code == 404
     assert bob.delete(f"/habits/{habit_id}").status_code == 404
-    assert habits(ada).json()[0] == {"id": habit_id, "name": "Read 10 pages", "done_today": False}
+    assert habits(ada).json()[0] == {"id": habit_id, "name": "Read 10 pages", "done_today": False, "streak": 0, "history": []}
 
 
 def test_habits_need_a_login(client):
