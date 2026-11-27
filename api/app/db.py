@@ -14,7 +14,10 @@ class Base(DeclarativeBase):
 
 
 # pool_pre_ping: hosted Postgres (Neon) closes idle connections; check before reusing one.
-engine = create_engine(get_settings().database_url, pool_pre_ping=True, pool_size=5, max_overflow=5)
+# connect_timeout: fail in seconds (not minutes) when the database is down, e.g. Docker not started.
+engine = create_engine(
+    get_settings().database_url, pool_pre_ping=True, pool_size=5, max_overflow=5, connect_args={"connect_timeout": 10}
+)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 
