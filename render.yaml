@@ -1,0 +1,21 @@
+# Render Blueprint for the API (New > Blueprint on dashboard.render.com, pick this repo).
+services:
+  - type: web
+    name: habit-tracker-api
+    runtime: docker
+    plan: free
+    region: frankfurt # same region as the Neon database
+    rootDir: api
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    # Deploy only after the GitHub Actions checks of the commit pass.
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: DATABASE_URL
+        sync: false # pasted in the dashboard: Neon connection string (never committed)
+      - key: JWT_SECRET
+        generateValue: true # Render creates a long random secret
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: ENVIRONMENT
+        value: production

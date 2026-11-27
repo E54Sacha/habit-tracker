@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { ApiError, api, type User } from "@/lib/api";
+import { useEffect, useState } from "react";
+import { ApiError, api, wakeServer, type User } from "@/lib/api";
+import { useSlowTask } from "@/lib/useSlowTask";
+import { WakingNotice } from "./WakingNotice";
 
 type Mode = "signup" | "login";
 
@@ -31,6 +33,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const { slow, run } = useSlowTask();
+
+  useEffect(() => {
+    wakeServer().catch(() => {}); // wake the server while the visitor types
+  }, []);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -38,9 +45,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
     setBusy(true);
     setError(null);
     try {
-      await api<User>(`/auth/${mode}`, {
-        method: "POST",
-        body: { email: form.get("email"), password: form.get("password") },
+      await run(async () => {
+        await wakeServer();
+        await api<User>(`/auth/${mode}`, {
+          method: "POST",
+          body: { email: form.get("email"), password: form.get("password") },
+        });
       });
       router.replace("/habits");
       router.refresh();
@@ -86,6 +96,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         <p role="alert" className="min-h-6 font-semibold text-danger">
           {error}
         </p>
+        <WakingNotice show={slow} />
         <button
           type="submit"
           disabled={busy}

@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, api, type Habit, type User } from "@/lib/api";
 import { localToday, todayLabel } from "@/lib/today";
+import { useSlowTask } from "@/lib/useSlowTask";
+import { WakingNotice } from "./WakingNotice";
 import { HabitRow } from "./HabitRow";
 import { Wordmark } from "./Wordmark";
 
@@ -17,6 +19,7 @@ export function HabitsBoard() {
   const [newName, setNewName] = useState("");
   const [adding, setAdding] = useState(false);
   const pending = useRef(new Set<number>()); // habits with a tick request in flight
+  const { slow, run } = useSlowTask();
 
   // Expired or invalid session: clear the cookie, then go to the login page.
   const handleError = useCallback(
@@ -34,14 +37,14 @@ export function HabitsBoard() {
   const load = useCallback(
     async (day: string) => {
       try {
-        const [me, list] = await Promise.all([api<User>("/auth/me"), api<Habit[]>(`/habits?today=${day}`)]);
+        const [me, list] = await run(() => Promise.all([api<User>("/auth/me"), api<Habit[]>(`/habits?today=${day}`)]));
         setUser(me);
         setHabits(list);
       } catch (e) {
         await handleError(e);
       }
     },
-    [handleError],
+    [handleError, run],
   );
 
   useEffect(() => {
@@ -66,15 +69,21 @@ export function HabitsBoard() {
     setHabits((list) => list?.map((h) => (h.id === id ? { ...h, ...change } : h)) ?? list);
 
   async function toggle(habit: Habit) {
-    if (pending.current.has(habit.id)) return;
+    if (!today || pending.current.has(habit.id)) return;
     pending.current.add(habit.id);
     const done = !habit.done_today;
-    update(habit.id, { done_today: done }); // show it right away (optimistic)
+    // Show it right away (optimistic). The streak counts up to yesterday until today is ticked,
+    // so ticking today adds one day and unticking removes it.
+    update(habit.id, {
+      done_today: done,
+      streak: habit.streak + (done ? 1 : -1),
+      history: done ? [...habit.history, today] : habit.history.filter((day) => day !== today),
+    });
     setError(null);
     try {
       await api(`/habits/${habit.id}/check-ins/${today}`, { method: done ? "PUT" : "DELETE" });
     } catch (e) {
-      update(habit.id, { done_today: !done }); // put it back as it was
+      update(habit.id, { done_today: habit.done_today, streak: habit.streak, history: habit.history }); // put it back
       await handleError(e);
     } finally {
       pending.current.delete(habit.id);
@@ -120,9 +129,9 @@ export function HabitsBoard() {
     }
   }
 
-  async function logout() {
+  async function logout(to = "/") {
     await api("/auth/logout", { method: "POST" }).catch(() => {});
-    router.replace("/");
+    router.replace(to);
     router.refresh();
   }
 
@@ -134,14 +143,25 @@ export function HabitsBoard() {
       <header className="flex items-center justify-between gap-4 py-6">
         <Wordmark href="/habits" />
         <div className="flex items-center gap-4 text-sm">
-          {user && <span className="hidden text-muted sm:inline">{user.email}</span>}
-          <button onClick={logout} className="rounded-full border-2 border-line px-4 py-1.5 font-bold transition hover:border-moss">
+          {user && !user.is_guest && <span className="hidden text-muted sm:inline">{user.email}</span>}
+          <button onClick={() => logout()} className="rounded-full border-2 border-line px-4 py-1.5 font-bold transition hover:border-moss">
             Log out
           </button>
         </div>
       </header>
 
       <main className="flex-1 pb-16 pt-4">
+        {user?.is_guest && (
+          <div className="mb-6 rounded-2xl border-2 border-moss/30 bg-moss-soft px-4 py-3">
+            <p className="font-semibold">You&rsquo;re using a demo account, filled with example habits.</p>
+            <p className="mt-0.5 text-sm text-muted">
+              Tick, rename or add anything: it&rsquo;s deleted after 24 hours.{" "}
+              <button onClick={() => logout("/signup")} className="font-bold text-ink underline decoration-2 underline-offset-4">
+                Create your own account
+              </button>
+            </p>
+          </div>
+        )}
         <p className="min-h-6 font-semibold text-muted">{today && todayLabel(new Date(`${today}T12:00:00`))}</p>
         <h1 className="mt-1 text-4xl font-extrabold tracking-tight">Today</h1>
 
@@ -161,9 +181,12 @@ export function HabitsBoard() {
         </p>
 
         {habits === null ? (
-          <p className="mt-2 text-muted" aria-live="polite">
-            Loading your habits…
-          </p>
+          <div className="mt-2">
+            <p className="text-muted" aria-live="polite">
+              Loading your habits…
+            </p>
+            <WakingNotice show={slow} />
+          </div>
         ) : habits.length === 0 ? (
           <div className="mt-2 rounded-3xl border-2 border-dashed border-line p-8">
             <p className="text-lg font-semibold">No habits yet.</p>
@@ -172,7 +195,7 @@ export function HabitsBoard() {
         ) : (
           <ul className="mt-2 space-y-2">
             {habits.map((habit) => (
-              <HabitRow key={habit.id} habit={habit} onToggle={toggle} onRename={rename} onDelete={remove} />
+              <HabitRow key={habit.id} habit={habit} today={today ?? ""} onToggle={toggle} onRename={rename} onDelete={remove} />
             ))}
           </ul>
         )}

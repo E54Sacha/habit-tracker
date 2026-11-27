@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GuestButton } from "@/components/GuestButton";
 import { Wordmark } from "@/components/Wordmark";
 
 // A preview of the habit list, so the first screen shows what the app does.
@@ -22,14 +23,14 @@ export default function Home() {
           <p className="mt-5 max-w-[34rem] text-lg leading-relaxed text-muted">
             Add the habits you want to keep, tick them when they&rsquo;re done, and see how many days in a row you&rsquo;ve kept going.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/signup" className="rounded-full bg-moss px-6 py-3 font-bold text-on-moss transition hover:brightness-110">
+          <GuestButton>
+            <Link href="/signup" className="rounded-full border-2 border-line px-6 py-3 font-bold transition hover:border-moss">
               Create an account
             </Link>
-            <Link href="/login" className="rounded-full border-2 border-line px-6 py-3 font-bold transition hover:border-moss">
+            <Link href="/login" className="px-2 py-3 font-bold underline decoration-2 underline-offset-4">
               Log in
             </Link>
-          </div>
+          </GuestButton>
         </div>
         <ul aria-label="Example habits" className="space-y-3 rounded-3xl border border-line bg-card p-5 shadow-sm">
           {preview.map((habit) => (

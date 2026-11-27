@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import type { Habit } from "@/lib/api";
+import { Calendar } from "./Calendar";
 
 type Props = {
   habit: Habit;
+  today: string;
   onToggle: (habit: Habit) => void;
   onRename: (habit: Habit, name: string) => Promise<boolean>;
   onDelete: (habit: Habit) => void;
 };
 
-export function HabitRow({ habit, onToggle, onRename, onDelete }: Props) {
+export function HabitRow({ habit, today, onToggle, onRename, onDelete }: Props) {
   const [mode, setMode] = useState<"view" | "rename" | "confirm-delete">("view");
   const [name, setName] = useState(habit.name);
   const done = habit.done_today;
@@ -27,7 +29,8 @@ export function HabitRow({ habit, onToggle, onRename, onDelete }: Props) {
   }
 
   return (
-    <li className={`flex items-center gap-4 rounded-2xl border px-3 py-3 transition-colors ${done ? "border-transparent bg-moss-soft" : "border-line bg-card"}`}>
+    <li className={`rounded-2xl border px-3 py-3 transition-colors ${done ? "border-transparent bg-moss-soft" : "border-line bg-card"}`}>
+      <div className="flex items-center gap-4">
       <button
         type="button"
         onClick={() => onToggle(habit)}
@@ -73,7 +76,10 @@ export function HabitRow({ habit, onToggle, onRename, onDelete }: Props) {
           </button>
         </form>
       ) : (
-        <span className={`min-w-0 flex-1 break-words text-lg font-semibold ${done ? "text-muted line-through decoration-2" : ""}`}>{habit.name}</span>
+        <div className="min-w-0 flex-1">
+          <span className={`break-words text-lg font-semibold ${done ? "text-muted line-through decoration-2" : ""}`}>{habit.name}</span>
+          <p className="text-sm text-muted">{streakLabel(habit)}</p>
+        </div>
       )}
 
       {mode === "view" && (
@@ -104,6 +110,16 @@ export function HabitRow({ habit, onToggle, onRename, onDelete }: Props) {
           </button>
         </div>
       )}
+      </div>
+      <div className="mt-3 pl-[3.75rem]">
+        <Calendar today={today} history={habit.history} />
+      </div>
     </li>
   );
+}
+
+function streakLabel({ streak, done_today }: Habit): string {
+  if (streak === 0) return "No streak yet";
+  const days = `${streak} day${streak === 1 ? "" : "s"} in a row`;
+  return done_today ? days : `${days}, tick today to keep it`;
 }
