@@ -64,11 +64,11 @@ Things you'll be tempted to add, but won't in this version:
 Each day ends on something you can demo.
 
 ### Day 1: API foundation and accounts
-- [ ] Install Docker Desktop (WSL 2), check `docker compose up` starts Postgres
-- [ ] Monorepo: `api/` (FastAPI) and `web/` (Next.js), `docker-compose.yml`
-- [ ] SQLAlchemy models (users, habits, check-ins) and the first Alembic migration
-- [ ] Sign up, log in, log out, "who am I" endpoints: Argon2 hashing, JWT in an `httpOnly` cookie
-- [ ] pytest against a test Postgres, and a first GitHub Actions workflow that runs it
+- [x] Install Docker Desktop (WSL 2), check `docker compose up` starts Postgres
+- [x] Monorepo: `api/` (FastAPI) and `web/` (Next.js), `docker-compose.yml`
+- [x] SQLAlchemy models (users, habits, check-ins) and the first Alembic migration
+- [x] Sign up, log in, log out, "who am I" endpoints: Argon2 hashing, JWT in an `httpOnly` cookie
+- [x] pytest against a test Postgres, and a first GitHub Actions workflow that runs it
 - **Demo at the end of the day:** in `/docs`, sign up, log in and call "who am I"; the tests pass on GitHub Actions.
 
 ### Day 2: Habits and the front end
