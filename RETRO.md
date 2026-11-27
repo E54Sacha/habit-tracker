@@ -7,7 +7,7 @@
 - **Security review** (not chosen): the new test gate hook was flagged twice (running code from untrusted repos, then nested repos) and made opt-in.
 
 ### Toolkit changes
-- [ ] `go-public` skill: check author emails, scan history for secrets, rewrite only what's needed, force-push with an explicit lease, verify on GitHub, then make the repo public, one step at a time (`skills/go-public/SKILL.md` · M · minor)
+- [x] `go-public` skill: check author emails, scan history for secrets, rewrite only what's needed, force-push with an explicit lease, verify on GitHub, then make the repo public, one step at a time (`skills/go-public/SKILL.md` · M · minor)
 
 ### Ideas not chosen (for a later retro)
 - `env-check` skill + script: Docker installed and running, ports free and who holds them, `gh` permissions, Node/Python versions (M · minor).
