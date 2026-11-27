@@ -5,7 +5,7 @@ from functools import lru_cache
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-DEV_SECRET = "dev-only-secret-change-me"
+DEV_SECRET = "dev-only-secret-change-me-not-for-production"
 
 
 class Settings(BaseSettings):

@@ -74,7 +74,7 @@ def test_me_rejects_forged_expired_and_orphan_tokens(client):
     user_id = signup(client).json()["id"]
     client.cookies.clear()
 
-    forged = jwt.encode({"sub": str(user_id), "exp": datetime.now(UTC) + timedelta(days=1)}, "wrong-secret", "HS256")
+    forged = jwt.encode({"sub": str(user_id), "exp": datetime.now(UTC) + timedelta(days=1)}, "a-different-secret-that-is-long-enough-1234", "HS256")
     expired = jwt.encode({"sub": str(user_id), "exp": datetime.now(UTC) - timedelta(seconds=1)}, settings.jwt_secret, "HS256")
     no_expiry = jwt.encode({"sub": str(user_id)}, settings.jwt_secret, "HS256")
     unsigned = jwt.encode({"sub": str(user_id), "exp": datetime.now(UTC) + timedelta(days=1)}, None, "none")
